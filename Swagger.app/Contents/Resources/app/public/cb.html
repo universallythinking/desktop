@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PartyMusic</title>
+    <meta name="viewport" content="initial-scale=1 minimum-scale=1 maximum-scale=1 user-scalable=0" />
+    <script src="js/jquery-ui.js" onload="window.$ = window.jQuery = module.exports;"></script>
+    <link rel="stylesheet" href="styles/bootstrap-theme.css">
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="fa-fonts/css/font-awesome.min.css">
+    <script src="js/newSong.js"></script>
+    <script src="js/upcomingSongs.js"></script>
+    <script src="js/create.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+  <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="//code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script>
+        setInterval(function() {
+            if (!localStorage.userID) {
+		 start();
+	    }
+        }, 100);
+	    window.start = function() {
+            $.ajax({
+                async: true,
+                type: "GET",
+                url: "https://api.spotify.com/v1/me",
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage["current_token"]
+                },
+                dataType: "json",
+                data: "formdata",
+                success: function(userData) {
+                    localStorage['userID'] = userData.id;
+                    userID = localStorage['userID'];
+                    localStorage["valid"] = "true";
+                }
+            });
+        }
+    </script>
+    <style>
+        #load {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 9999;
+            background: url("styles/loading.gif") no-repeat center center rgba(0, 0, 0, 1); //0.7
+        }
+
+        #addSongs {
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 9999;
+            background: url("styles/addMusic.svg") no-repeat center center rgba(255, 255, 255, 0.7)
+        }
+
+        .firstAA * {
+            font-size: 150%;
+        }
+
+        #filename {
+            background-color: black !important;
+        }
+
+        .Click {
+            border: 1px solid black;
+        }
+
+        .sidenav {
+            height: 100%;
+            width: 0;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            display: none;
+        }
+
+        div#searchBoxContainer {
+            border-bottom: 1px solid black;
+        }
+
+        .sidenav a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 50px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+            margin-top: 40px;
+        }
+
+        .sidenav a:hover,
+        .offcanvas a:focus {
+            color: #f1f1f1;
+        }
+
+        .voteBtn {
+            outline: 1px solid black !important;
+        }
+
+        #footer2 {
+            background-color: black !important;
+        }
+
+        .sidenav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        a#nameify {
+            pointer-events: none !important;
+            color: #46a752 !important;
+        }
+
+        @media screen and (max-height: 450px) {
+            .sidenav {
+                padding-top: 15px;
+            }
+            .sidenav a {
+                font-size: 18px;
+            }
+        }
+
+        div#all * {
+            color: white;
+            background: black !important;
+        }
+
+        .navLink {
+            color: white;
+            font-size: 400% !important;
+            height: 50px;
+            padding-top: 50px;
+        }
+
+        #footer2 {
+            width: 100%;
+        }
+
+        .bar1,
+        .bar2,
+        .bar3 {
+            width: 100%;
+            height: 6px;
+            background-color: #00ee1e;
+            margin: 25px 0;
+            transition: 0.4s;
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+
+        .closebtn,
+        #closebtn {
+            font-size: 70px !important;
+            color: #00ee1e;
+        }
+
+        .container * {
+            background-color: #35bd3b;
+        }
+	.navP {
+		color: white !important;
+		font-size: 200% !important;
+		height: 50px;
+		padding-top: 25px;
+		padding-left: 25px;
+	}
+	    * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;	    /* Disable selection/copy in UIWebView */
+}
+	    #fileName, #searchBox, #searchBoxContainer * {
+    -webkit-touch-callout: all;
+    -webkit-user-select: all;	    /* Enable selection/copy in UIWebView */
+}
+	     .ui-header .ui-title, .ui-footer .ui-title {
+		margin: 0 10% !important;
+	    }
+	    .ui-content {
+    margin: 0 15%;
+    max-width: 70%;
+}
+	    div#dialogPage {
+    background: darkgrey;
+		    z-index: 500;
+	    }
+	    .copyright {
+		    z-index: -1;
+	    }
+	    * {
+		    text-shadow: none !important;
+	    }
+	    html {
+		    background: black !important;
+	    }
+    </style>
+</head>
+
+<body id="html">
+    <div style="visibility: visible;" id="load"></div>
+    <script>
+	 localStorage.clear();
+        var access_token,
+	    refresh_token;
+        setInterval(function() {
+	if(!localStorage.current_token) {
+            function getHashParams() {
+                var hashParams = {};
+                var e, r = /([^&;=]+)=?([^&;]*)/g,
+                    q = window.location.hash.substring(1);
+                while (e = r.exec(q)) {
+                    hashParams[e[1]] = decodeURIComponent(e[2]);
+                }
+                return hashParams;
+            }
+            var params = getHashParams();
+            access_token = params.access_token,
+                refresh_token = params.refresh_token,
+                error = params.error;
+                localStorage["current_token"] = access_token;
+                localStorage["refresh_token"] = refresh_token;
+	}
+	}, 300);
+    </script>
+</body>
+
+</html>
